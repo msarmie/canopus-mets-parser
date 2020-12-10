@@ -13,21 +13,24 @@ import (
 )
 
 // ********* JSON Structs *********
-type ObjectManifest struct {
-  Title               string       `json:"title"`
-	JiraTicketNumber    string       `json:"jira_ticket_number"`
-	DepartmentOrLibrary string       `json:"department_or_library"`
-	CollectionCall      string       `json:"collection_call"`
-	DepositorName       string       `json:"depositor_name"`
-	BaggingDate         string       `json:"bagging_date"`
-	Description         string       `json:"description"`
-	SfErrors            string       `json:"sf_errors"`
-	NewTarTechMD        NewTarTechMd `json:"tar_techMD"`
-	ManifestSha256      string       `json:"manifest_sha256"`
-	ManifestMd5         string       `json:"manifest_md5"`
-	Manifest            manifestJSON `json:"manifest"`
-	TSMLocation         string       `json:"tsm_location"`
-	FileCount           int64        `json:"file_count"`
+
+// New
+type ObjectMetsManifest struct { // TODO Data structure name may change
+	Title               string           `json:"title"`
+	JiraTicketNumber    string           `json:"jira_ticket_number"`
+	DepartmentOrLibrary string           `json:"department_or_library"`
+	CollectionCall      string           `json:"collection_call"`
+	DepositorName       string           `json:"depositor_name"`
+	BaggingDate         string           `json:"bagging_date"`
+	Description         string           `json:"description"`
+	SfErrors            string           `json:"sf_errors"`
+	NewTarTechMD        NewTarTechMd     `json:"tar_techMD"`
+	ManifestSha256      string           `json:"manifest_sha256"`
+	ManifestMd5         string           `json:"manifest_md5"`
+	Manifest            manifestMetsJSON `json:"manifest"`
+	StorageLocation     string           `json:"storage_location"`
+	FileCount           int64            `json:"file_count"`
+	SchemaVersion       string           `json:"schema_version"`
 }
 
 // NewTarTechMd represents the Tar Tech MD used in Object Metadata
@@ -49,9 +52,6 @@ type Files struct {
 	Md5      string        `json:"md5"`
   Sha256   string        `json:"sha256"`
 	Matches  []Matches     `json:"matches"`
-  // New/Experimental fields
-  Extended FilesExtended `json:"extended"`
-
 }
 
 // Identifiers represents the Identifiers Structure used in manifest file
@@ -71,34 +71,88 @@ type Matches struct {
 	Warning string `json:"warning"`
 }
 
-// manifestJSON represents Retroactive Manifest Structure
-type manifestJSON struct {
+// New
+type manifestMetsJSON struct {
 	Siegfried   string        `json:"siegfried"`
 	Scandate    string        `json:"scandate"`
 	Signature   string        `json:"signature"`
 	Created     string        `json:"created"`
 	Identifiers []Identifiers `json:"identifiers"`
-	Files       []Files       `json:"files"`
+	Files       []FilesMets   `json:"files"`
 }
 
 // New
-type FilesExtended struct {
-  Events        []Events      `json:"events"`
-  Agents        []Agents      `json:"agents"`
-  DescriptiveMD descriptiveMD `json:"descriptiveMD"`
+type FilesMets struct {
+	FileName      string        `json:"filename"`
+	FileSize      int64         `json:"filesize"`
+	Modified      string        `json:"modified"`
+	Errors        string        `json:"errors"`
+	Md5           string        `json:"md5"`
+  Sha256        string        `json:"sha256"`
+	Matches       []Matches     `json:"matches"`
+	DescriptiveMD descriptiveMD `json:"descriptiveMD"`
 }
 
-// New
 type descriptiveMD struct {
-  Identifier  string `json:"identifier"`
-  Title       string `json:"title"`
-  Creator     string `json:"creator"`
-  Date        string `json:"date"`
-  Type        string `json:"type"`
-  Format      string `json:"format"`
-  Language    string `json:"language"`
-  Contributor string `json:"contributor"`
-  Provenance  string `json:"provenance"`
+  XMLName               xml.Name `xml:"dublincore" json:"-"`
+  Identifier            string   `xml:"identifier" json:"identifier"`
+  Title                 string   `xml:"title" json:"title"`
+  Creator               string   `xml:"creator" json:"creator"`
+  Date                  string   `xml:"date" json:"date"`
+  Type                  string   `xml:"type" json:"type"`
+  Format                string   `xml:"format" json:"format"`
+  LanguageArr           []string `xml:"language" json:"-"`
+  Language              string   `json:"language"`
+  Contributor           string   `xml:"contributor" json:"contributor"`
+  Provenance            string   `xml:"provenance" json:"provenance"`
+  SubjectArr            []string `xml:"subject" json:"-"`
+  Subject               string   `json:"subject"`
+  Description           string   `xml:"description" json:"description"`
+  Publisher             string   `xml:"publisher" json:"publisher"`
+  Source                string   `xml:"source" json:"source"`
+  Relation              string   `xml:"relation" json:"relation"`
+  Coverage              string   `xml:"converge" json:"converge"`
+  Rights                string   `xml:"rights" json:"rights"`
+  IsPartOf              string   `xml:"isPartOf,omitempty" json:"isPartOf,omitempty"`
+  Abstract              string   `xml:"abstract,omitempty" json:"abstract,,omitempty"`
+  AccessRights          string   `xml:"accessRights,omitempty" json:"accessRights,omitempty"`
+  AccrualMethod         string   `xml:"accrualMethod,omitempty" json:"accrualMethod,omitempty"`
+  AccrualPeriodicity    string   `xml:"accrualPeriodicity,omitempty" json:"accrualPeriodicity,omitempty"`
+  AccrualPolicy         string   `xml:"accrualPolicy,omitempty" json:"accrualPolicy,omitempty"`
+  Alternative           string   `xml:"alternative,omitempty" json:"alternative,omitempty"`
+  Audience              string   `xml:"audience,omitempty" json:"audience,omitempty"`
+  Available             string   `xml:"available,omitempty" json:"available,omitempty"`
+  BibliographicCitation string   `xml:"bibliographicCitation,omitempty" json:"bibliographicCitation,omitempty"`
+  ConformsTo            string   `xml:"conformsTo,omitempty" json:"conformsTo,omitempty"`
+  Created               string   `xml:"created,omitempty" json:"created,omitempty"`
+  DateAccepted          string   `xml:"dateAccepted,omitempty" json:"dateAccepted,omitempty"`
+  DateCopyrighted       string   `xml:"dateCopyrighted,omitempty" json:"dateCopyrighted,omitempty"`
+  DateSubmitted         string   `xml:"dateSubmitted,omitempty" json:"dateSubmitted,omitempty"`
+  EducationLevel        string   `xml:"educationLevel,omitempty" json:"educationLevel,omitempty"`
+  Extent                string   `xml:"extent,omitempty" json:"extent,omitempty"`
+  HasFormat             string   `xml:"hasFormat,omitempty" json:"hasFormat,omitempty"`
+  HasPart               string   `xml:"hasPart,omitempty" json:"hasPart,omitempty"`
+  HasVersion            string   `xml:"hasVersion,omitempty" json:"hasVersion,omitempty"`
+  InstructionalMethod   string   `xml:"instructionalMethod,omitempty" json:"instructionalMethod,omitempty"`
+  IsFormatOf            string   `xml:"isFormatOf,omitempty" json:"isFormatOf,omitempty"`
+  IsReferencedBy        string   `xml:"isReferencedBy,omitempty" json:"isReferencedBy,omitempty"`
+  IsReplacedBy          string   `xml:"isReplacedBy,omitempty" json:"isReplacedBy,omitempty"`
+  IsRequiredBy          string   `xml:"isRequiredBy,omitempty" json:"isRequiredBy,omitempty"`
+  Issued                string   `xml:"issued,omitempty" json:"issued,omitempty"`
+  IsVersionOf           string   `xml:"isVersionOf,omitempty" json:"isVersionOf,omitempty"`
+  License               string   `xml:"license,omitempty" json:"license,omitempty"`
+  Mediator              string   `xml:"mediator,omitempty" json:"mediator,omitempty"`
+  Modified              string   `xml:"modified,omitempty" json:"modified,omitempty"`
+  References            string   `xml:"references,omitempty" json:"references,omitempty"`
+  Replaces              string   `xml:"replaces,omitempty" json:"replaces,omitempty"`
+  Requires              string   `xml:"requires,omitempty" json:"requires,omitempty"`
+  RightsHolder          string   `xml:"rightsHolder,omitempty" json:"rightsHolder,omitempty"`
+  Spatial               string   `xml:"spatial,omitempty" json:"spatial,omitempty"`
+  TableOfContents       string   `xml:"tableOfContents,omitempty" json:"tableOfContents,omitempty"`
+  Temporal              string   `xml:"temporal,omitempty" json:"temporal,omitempty"`
+  Valid                 string   `xml:"valid,omitempty" json:"valid,omitempty"`
+  Events                []Events `json:"events"`
+  Agents                []Agents `json:"agents"`
 }
 
 // New: Premis events
@@ -136,25 +190,17 @@ type Mets struct {
 
 // dmdSec
 type DescriptiveSec struct {
-  XMLName      xml.Name     `xml:"dmdSec"`
-  ID           string       `xml:"ID,attr"`
-  PremisObject PremisObject `xml:"mdWrap>xmlData>object"`
-  DublinCoreMD DublinCoreMD `xml:"mdWrap>xmlData>dublincore"`
-  DigiProvMD   []DigiProvMD `xml:"digiprovMD"`
+  XMLName    xml.Name     `xml:"dmdSec"`
+  ID         string       `xml:"ID,attr"`
+  Dmd        Dmd          `xml:"mdWrap"`
+  DigiProvMD []DigiProvMD `xml:"digiprovMD"`
 }
 
-// dmdSec > dublincore
-type DublinCoreMD struct {
-  XMLName     xml.Name `xml:"dublincore"`
-  Identifier  string   `xml:"identifier"`
-  Title       string   `xml:"title"`
-  Creator     string   `xml:"creator"`
-  Date        string   `xml:"date"`
-  Type        string   `xml:"type"`
-  Format      string   `xml:"format"`
-  Language    string   `xml:"language"`
-  Contributor string   `xml:"contributor"`
-  Provenance  string   `xml:"provenance"`
+type Dmd struct {
+  XMLName      xml.Name      `xml:"mdWrap"`
+  Mdtype       string        `xml:"MDTYPE,attr"`
+  PremisObject PremisObject  `xml:"xmlData>object"`
+  DublinCoreMD descriptiveMD `xml:"xmlData>dublincore"`
 }
 
 // amdSec
@@ -169,15 +215,19 @@ type AdminSec struct {
 
 // amdSec > SourceMD
 type SourceMD struct {
-  XMLName             xml.Name `xml:"sourceMD"`
-  Payload             string   `xml:"mdWrap>xmlData>transfer_metadata>Payload-Oxum"`
-  BagCount            string   `xml:"mdWrap>xmlData>transfer_metadata>Bag-Count"`
-  ContactName         string   `xml:"mdWrap>xmlData>transfer_metadata>Contact-Name"`
-  ContactEmail        string   `xml:"mdWrap>xmlData>transfer_metadata>Contact-Email"`
-  BagSize             string   `xml:"mdWrap>xmlData>transfer_metadata>Bag-Size"`
-  BaggingDate         string   `xml:"mdWrap>xmlData>transfer_metadata>Bagging-Date"`
-  SourceOrganization  string   `xml:"mdWrap>xmlData>transfer_metadata>Source-Organization"`
-  ExternalDescription string   `xml:"mdWrap>xmlData>transfer_metadata>External-Description"`
+  XMLName                   xml.Name `xml:"sourceMD"`
+  Payload                   string   `xml:"mdWrap>xmlData>transfer_metadata>Payload-Oxum"`
+  BagCount                  string   `xml:"mdWrap>xmlData>transfer_metadata>Bag-Count"`
+  ContactName               string   `xml:"mdWrap>xmlData>transfer_metadata>Contact-Name"`
+  ContactEmail              string   `xml:"mdWrap>xmlData>transfer_metadata>Contact-Email"`
+  BagSize                   string   `xml:"mdWrap>xmlData>transfer_metadata>Bag-Size"`
+  BaggingDate               string   `xml:"mdWrap>xmlData>transfer_metadata>Bagging-Date"`
+  SourceOrganization        string   `xml:"mdWrap>xmlData>transfer_metadata>Source-Organization"`
+  ExternalDescription       string   `xml:"mdWrap>xmlData>transfer_metadata>External-Description"`
+  ExternalIdentifier        string   `xml:"mdWrap>xmlData>transfer_metadata>External-Identifier"`
+  BagGroupIdentifier        string   `xml:"mdWrap>xmlData>transfer_metadata>Bag-Group-Identifier"`
+  InternalSenderIdentifier  string   `xml:"mdWrap>xmlData>transfer_metadata>Internal-Sender-Identifier"`
+  InternalSenderDescription string   `xml:"mdWrap>xmlData>transfer_metadata>Internal-Sender-Description"`
 }
 
 // amdSec > TechnicalMD
@@ -289,22 +339,6 @@ type Identity struct {
   Toolversion string   `xml:"toolversion,attr"`
 }
 
-type Tools struct {
-  XMLName xml.Name `xml:"tool"`
-  Name    string   `xml:"name,attr"`
-  Version string   `xml:"version,attr"`
-}
-
-type Jhove struct {
-  XMLName      xml.Name `xml:"repInfo"`
-  LastModified string   `xml:"lastModified"`
-  Size         string   `xml:"size"`
-  Format       string   `xml:"format"`
-  Status       string   `xml:"status"`
-  Mimetype     string   `xml:"mimeType"`
-  Note         string   `xml:"note"`
-}
-
 // mets > filesec
 type FileSec struct {
   XMLName xml.Name  `xml:"fileSec"`
@@ -327,9 +361,10 @@ type File struct {
   } `xml:"FLocat"`
 }
 
+// Associate object to corresponding mets metadata
 type FileMapped struct {
   Admid string
-  Dmdid string
+  Dmdid []string
   Name string
 }
 
@@ -387,61 +422,81 @@ func main() {
 
 // Output JSON file with METS metadata in Canopus schema
 func buildMetadataMets(mets Mets, target string) (string, string) {
-	manifestObject := ObjectManifest{}
+	manifestObject := ObjectMetsManifest{}
+  packageName := getParentPackage(mets.StructMap)
 
   if mets.DescriptiveSec == nil {
     log.Fatal("Descriptive metadata (dmdSec) missing.")
   }
 
-	manifestObject.Title = mets.DescriptiveSec[0].PremisObject.ObjectName
+  file_count, files, transferLevelDc := extractMetadataMetsFile(mets)
+  manifestObject.Title = transferLevelDc.Title
+  if manifestObject.Title == "" {
+    manifestObject.Title = packageName
+  }
+  manifestObject.CollectionCall = transferLevelDc.Identifier
+  manifestObject.Description = transferLevelDc.Description
   manifestObject.BaggingDate = mets.Header.CreateDate
-  file_count, files := extractMetadataMetsFile(mets)
-  manifest := manifestJSON{}
   manifestObject.FileCount = file_count
+
+  manifest := manifestMetsJSON{}
   e := getSiegfriedMetadata(mets.AdminSec)
-  sieg := getSiegfriedVersion(e.Detail)
-  manifest.Siegfried = sieg["version"]
-  manifest.Scandate = e.DateTime
+  if e != nil {
+    sieg := getSiegfriedVersion(e.Detail)
+    manifest.Siegfried = sieg["version"]
+    manifest.Scandate = e.DateTime
+  }
   manifest.Files = files
   identifier := Identifiers{}
   var identifiers []Identifiers
   identifiers = append(identifiers, identifier)
   manifest.Identifiers = identifiers
   manifestObject.Manifest = manifest
+  manifestObject.StorageLocation = packageName
+  manifestObject.SchemaVersion = "0.2.0"
 
-	target += "/" + manifestObject.Title + "_" + "metadata.json"
+	// target += "/" + manifestObject.Title + "_" + "metadata.json"
+  target += "/" + packageName + "_" + "metadata.json"
 
 	//Write struct to file
 	writeNewStructToFile(target, manifestObject)
 	return target, ""
 }
 
-func extractMetadataMetsFile(mets Mets) (int64, []Files){
+// Return file count, list of files, objects directory (transfer level) metadata
+func extractMetadataMetsFile(mets Mets) (int64, []FilesMets, descriptiveMD){
   var total_size int64
   var file_count_all int64
   total_size = 0
   file_count_all = 0
-  var files []Files
+  var files []FilesMets
+  var transferLevelDc descriptiveMD
 
   // get descriptive metadata
   dublincore := getDublinCore(mets)
   structmap := getFileIdDdmdIdStructMap(mets.StructMap)
+
+  for _, id := range structmap["objects"] {
+    _, ok := dublincore[id]
+    if ok {
+      transferLevelDc = dublincore[id]
+    }
+  }
+
+  // map of files with corresponding admd, dmd,
   filemap := getAmdIdByFileIdFileSec(mets.FileSec, structmap)
 
   // one adminsec for each file
   for _, a := range mets.AdminSec {
-    file := Files{}
+    file := FilesMets{}
     if (a.TechnicalMD.ID != "") {
       t := a.TechnicalMD
-      // filepath := strings.Replace(t.PremisObject.ObjectName, "%transferDirectory%", "", -1)
-      // filepath = strings.Replace(filepath, "%SIPDirectory%", "", -1)
-      // file.FileName = filepath
       file.Md5 =  t.PremisObject.Fits.Md5
       if t.PremisObject.Hashtype == "sha256" {
         file.Sha256 =  t.PremisObject.Hashvalue
       }
       if (t.PremisObject.Bytes == "") {
-        log.Fatal("Empty bytes")
+        log.Fatal("Empty bytes") // TODO
       }
       byte, err := strconv.Atoi(t.PremisObject.Bytes)
       if err != nil {
@@ -449,7 +504,7 @@ func extractMetadataMetsFile(mets Mets) (int64, []Files){
       }
       total_size += int64(byte)
       file.FileSize = int64(byte)
-      file.Modified = t.PremisObject.ModifiedDate // just date, no timestamp, METSFlask uses Jhove
+      file.Modified = t.PremisObject.ModifiedDate // TODO
 
       // file identification match PRONOM
       match := Matches{}
@@ -462,53 +517,44 @@ func extractMetadataMetsFile(mets Mets) (int64, []Files){
 
       // PREMIS:EVENT and AGENTS
       events, agents := getPremisEvents(a)
-      file.Extended.Events = events
-      file.Extended.Agents = agents
 
-      // DublinCore metadata
+      // DublinCore metadata 
       descriptivemd := descriptiveMD{}
+      descriptivemd.Events = events
+      descriptivemd.Agents = agents
+
       for _, value := range filemap {
         if value.Admid == a.ID {
           file.FileName = value.Name
-          // fmt.Println("Filemapped Name: " +value.Name)
-          dcmd := dublincore[value.Dmdid]
-          descriptivemd.Identifier = dcmd.Identifier
-          descriptivemd.Title = dcmd.Title
-          descriptivemd.Date = dcmd.Date
-          descriptivemd.Type = dcmd.Type
-          descriptivemd.Format = dcmd.Format
-          descriptivemd.Language = dcmd.Language
-          descriptivemd.Contributor = dcmd.Contributor
-          descriptivemd.Provenance = dcmd.Provenance
-          descriptivemd.Creator = dcmd.Creator
+          for _, id := range value.Dmdid {
+            _, ok := dublincore[id] // [dmdSec_2, dmdSec_3]
+            if ok {
+              descriptivemd = dublincore[id]
+              descriptivemd.Language = strings.Join(descriptivemd.LanguageArr, ",")
+              descriptivemd.Subject = strings.Join(descriptivemd.SubjectArr, ",")
+            }
+          }
         }
       }
-      file.Extended.DescriptiveMD = descriptivemd
+      file.DescriptiveMD = descriptivemd
 
       files = append(files, file)
       file_count_all++
     }
   }
-  return file_count_all, files
+  return file_count_all, files, transferLevelDc
 }
 
 // return map of dublincore metadata identified by dmd ID
-func getDublinCore(mets Mets) (map[string]DublinCoreMD){
-  dublincore := make(map[string]DublinCoreMD)
-  for _, dmd := range mets.DescriptiveSec {
-    dublincore[dmd.ID] = dmd.DublinCoreMD
+func getDublinCore(mets Mets) (map[string]descriptiveMD){
+  dublincore := make(map[string]descriptiveMD)
+  for _, desc := range mets.DescriptiveSec {
+    if desc.Dmd.Mdtype == "DC" {
+      dublincore[desc.ID] = desc.Dmd.DublinCoreMD
+    }
   }
   return dublincore
 }
-
-// return map of administrative data identified by adminMD ID
-// func getAdminSec(mets Mets) (map[string]AdminSec){
-//   adminsec := make(map[string]AdminSec)
-//   for _, a := range mets.AdminSec {
-//     adminsec[a.ID] = a
-//   }
-//   return adminsec
-// }
 
 // get PREMIS:EVENTS and PREMIS:AGENT for an object identified by AdminSec
 func getPremisEvents(a AdminSec) ([]Events, []Agents){
@@ -538,9 +584,8 @@ func getPremisEvents(a AdminSec) ([]Events, []Agents){
 }
 
 // get file ID of object from structmap
-// func getFileIdDdmdIdStructMap(mets Mets) (map[string]string) {
-func getFileIdDdmdIdStructMap(structmap []StructMap) (map[string]string) {
-  sm := make(map[string]string)
+func getFileIdDdmdIdStructMap(structmap []StructMap) (map[string][]string) {
+  sm := make(map[string][]string)
   for _, s1 := range structmap {
     if s1.Label == "Archivematica default" {
       unpackDiv(s1.Parent, sm)
@@ -550,11 +595,14 @@ func getFileIdDdmdIdStructMap(structmap []StructMap) (map[string]string) {
 }
 
 // recursively iterate over Directory objects to get file ID of non-Directory objects
-func unpackDiv(div Div, sm map[string]string) (map[string]string){
+func unpackDiv(div Div, sm map[string][]string) (map[string][]string){
+  dmdIds := strings.Split(div.Dmdid, " ")
   if div.Type == "Item" {
-    sm[div.File.Fileid] = div.Dmdid
+    sm[div.File.Fileid] = dmdIds // DMDID="dmdSec_3 dmdSec_4"
   } else if (div.Type == "Directory") {
-    // fmt.Println(div.Type +": "+div.Label+ " DMDID: " +div.Dmdid+ " ADMID: " +div.Admid)
+    if (div.Label == "objects") {
+      sm[div.Label] = dmdIds
+    }
     for _, c := range div.Children {
       unpackDiv(c,sm)
     }
@@ -563,8 +611,7 @@ func unpackDiv(div Div, sm map[string]string) (map[string]string){
 }
 
 // get administrative ID of file in File Section
-// func getAmdIdByFileIdFileSec(mets Mets, structmap map[string]string) (map[string]FileMapped){
-func getAmdIdByFileIdFileSec(filesec FileSec, structmap map[string]string) (map[string]FileMapped){
+func getAmdIdByFileIdFileSec(filesec FileSec, structmap map[string][]string) (map[string]FileMapped){
   filemap := make(map[string]FileMapped)
   for _, grp := range filesec.FileGrp {
     for _, file := range grp.Files {
@@ -612,7 +659,6 @@ func getParentPackage(structMap []StructMap) string {
   for _, sm := range structMap {
     if sm.Label == "Archivematica default" {
       if sm.Parent.Type == "Directory" {
-        fmt.Println(sm.Parent.Label)
         packageName = sm.Parent.Label
       }
     }
@@ -621,7 +667,7 @@ func getParentPackage(structMap []StructMap) string {
 }
 
 //taken from upload.go
-func writeNewStructToFile(file string, m ObjectManifest) {
+func writeNewStructToFile(file string, m ObjectMetsManifest) {
 	output, err := json.MarshalIndent(&m, "", "  ")
 	if err != nil {
 		log.Fatal(err)
